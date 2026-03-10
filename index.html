@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stable101</title>
+  <style>
+    /* ── Reset & base ─────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #f4f6fb;
+      --card:      #ffffff;
+      --text:      #1a1a2e;
+      --muted:     #6b7280;
+      --radius:    14px;
+      --shadow:    0 4px 24px rgba(0,0,0,.09);
+
+      --usdt:      #26a17b;
+      --usdt-dark: #1e8063;
+      --usdc:      #2775ca;
+      --usdc-dark: #1e5fa8;
+      --dai:       #f5ac37;
+      --dai-dark:  #d9921a;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Screens ──────────────────────────────────────────────────────────── */
+    .screen { display: none; flex-direction: column; min-height: 100vh; padding: 24px 16px 32px; max-width: 480px; margin: 0 auto; }
+    .screen.active { display: flex; }
+
+    /* ── Header ──────────────────────────────────────────────────────────── */
+    .app-header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .app-header .logo {
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, var(--usdt), var(--usdc), var(--dai));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .app-header .tagline {
+      margin-top: 6px;
+      font-size: .95rem;
+      color: var(--muted);
+    }
+
+    /* ── Main buttons ─────────────────────────────────────────────────────── */
+    .coin-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      flex: 1;
+    }
+    .coin-btn {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 22px 24px;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      box-shadow: var(--shadow);
+      transition: transform .15s, box-shadow .15s;
+      text-align: left;
+    }
+    .coin-btn:hover  { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,.14); }
+    .coin-btn:active { transform: translateY(0); }
+    .coin-btn .coin-icon { font-size: 2rem; flex-shrink: 0; }
+    .coin-btn .coin-info .sub { font-size: .78rem; font-weight: 400; opacity: .85; margin-top: 2px; }
+
+    .btn-usdt { background: linear-gradient(135deg, var(--usdt), var(--usdt-dark)); }
+    .btn-usdc { background: linear-gradient(135deg, var(--usdc), var(--usdc-dark)); }
+    .btn-dai  { background: linear-gradient(135deg, var(--dai),  var(--dai-dark));  }
+
+    /* ── Detail screen ────────────────────────────────────────────────────── */
+    .detail-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+      color: #fff;
+    }
+    .detail-header .dh-icon { font-size: 2.2rem; }
+    .detail-header .dh-title { font-size: 1.4rem; font-weight: 800; }
+    .detail-header .dh-sub   { font-size: .82rem; opacity: .85; }
+
+    .dh-usdt { background: linear-gradient(135deg, var(--usdt), var(--usdt-dark)); }
+    .dh-usdc { background: linear-gradient(135deg, var(--usdc), var(--usdc-dark)); }
+    .dh-dai  { background: linear-gradient(135deg, var(--dai),  var(--dai-dark));  }
+
+    /* ── Cards ────────────────────────────────────────────────────────────── */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow);
+    }
+    .card h3 {
+      font-size: .78rem;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .card p  { font-size: .92rem; line-height: 1.6; color: var(--text); }
+    .card ul { font-size: .92rem; line-height: 1.7; color: var(--text); padding-left: 18px; }
+
+    .stat-row { display: flex; gap: 12px; margin-bottom: 14px; }
+    .stat-box {
+      flex: 1;
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .stat-box .stat-label { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+    .stat-box .stat-value { font-size: 1.25rem; font-weight: 800; margin-top: 4px; }
+
+    .val-usdt { color: var(--usdt); }
+    .val-usdc { color: var(--usdc); }
+    .val-dai  { color: var(--dai);  }
+
+    /* ── Bottom nav ───────────────────────────────────────────────────────── */
+    .bottom-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: auto;
+      padding-top: 24px;
+    }
+    .btn-back {
+      flex: 1;
+      padding: 14px;
+      border-radius: var(--radius);
+      border: 2px solid #e5e7eb;
+      background: var(--card);
+      font-size: .95rem;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-back:hover { background: #f0f0f0; }
+
+    .btn-buy {
+      flex: 2;
+      padding: 14px;
+      border-radius: var(--radius);
+      border: none;
+      font-size: .95rem;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      transition: opacity .15s, transform .15s;
+    }
+    .btn-buy:hover  { opacity: .9; transform: translateY(-1px); }
+    .btn-buy:active { transform: translateY(0); }
+
+    .buy-usdt { background: var(--usdt); }
+    .buy-usdc { background: var(--usdc); }
+    .buy-dai  { background: var(--dai);  }
+
+    /* ── Footer ──────────────────────────────────────────────────────────── */
+    .app-footer {
+      text-align: center;
+      font-size: .75rem;
+      color: var(--muted);
+      margin-top: 28px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════ MAIN SCREEN ═══════════════════ -->
+<div id="screen-main" class="screen active">
+  <div class="app-header">
+    <div class="logo">Stable101</div>
+    <div class="tagline">Learn the history & usecases of the world's top stablecoins</div>
+  </div>
+
+  <div class="coin-grid">
+    <button class="coin-btn btn-usdt" onclick="show('usdt')">
+      <span class="coin-icon">💵</span>
+      <div class="coin-info">
+        <div>Tether USDT</div>
+        <div class="sub">The world's largest stablecoin</div>
+      </div>
+    </button>
+
+    <button class="coin-btn btn-usdc" onclick="show('usdc')">
+      <span class="coin-icon">🔵</span>
+      <div class="coin-info">
+        <div>Circle USDC</div>
+        <div class="sub">The regulated dollar on-chain</div>
+      </div>
+    </button>
+
+    <button class="coin-btn btn-dai" onclick="show('dai')">
+      <span class="coin-icon">🌤️</span>
+      <div class="coin-info">
+        <div>Sky DAI</div>
+        <div class="sub">The original decentralised stablecoin</div>
+      </div>
+    </button>
+  </div>
+
+  <div class="app-footer">Stable101 · Educational purposes only · Data as of 2025</div>
+</div>
+
+
+<!-- ═══════════════════ USDT SCREEN ═══════════════════ -->
+<div id="screen-usdt" class="screen">
+  <div class="detail-header dh-usdt">
+    <span class="dh-icon">💵</span>
+    <div>
+      <div class="dh-title">Tether USDT</div>
+      <div class="dh-sub">Est. 2014 · USD-pegged stablecoin</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📖 History</h3>
+    <p>
+      Tether (USDT) was launched in July 2014 by Brock Pierce, Reeve Collins, and Craig Sellars under the name <strong>Realcoin</strong>, later rebranded to Tether. It was the first fiat-backed stablecoin ever deployed, initially built on Bitcoin's Omni Layer protocol. Tether Limited, the issuing company, is closely affiliated with the Bitfinex exchange — both are owned by iFinex Inc.<br><br>
+      USDT was controversial early on: in 2019 the New York Attorney General investigated Bitfinex for allegedly using Tether reserves to cover an $850 million loss. In 2021 Tether settled with the NYAG and the CFTC for $41 million without admitting wrongdoing, agreeing to publish quarterly reserve attestations.<br><br>
+      Despite controversy, Tether grew into the dominant stablecoin, expanding across Ethereum, Tron, Solana, TON, and many other chains.
+    </p>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-box">
+      <div class="stat-label">Total Supply</div>
+      <div class="stat-value val-usdt">~$143B</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">FDV</div>
+      <div class="stat-value val-usdt">~$143B</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>⚡ Main Use Cases</h3>
+    <ul>
+      <li><strong>Trading & hedging</strong> — park value without leaving crypto during market volatility</li>
+      <li><strong>Cross-border payments</strong> — instant, low-cost USD transfers globally, especially in emerging markets</li>
+      <li><strong>Cross-chain transfers via LayerZero</strong> — USDT can be bridged across 30+ chains using LayerZero's OFT (Omnichain Fungible Token) standard, enabling seamless multi-chain liquidity</li>
+      <li><strong>DeFi collateral & liquidity</strong> — largest stablecoin pool on Curve, Uniswap, and Aave</li>
+      <li><strong>Remittances</strong> — popular in countries like Argentina, Turkey, and Nigeria as a USD substitute</li>
+    </ul>
+  </div>
+
+  <div class="bottom-actions">
+    <button class="btn-back" onclick="show('main')">← Back</button>
+    <button class="btn-buy buy-usdt" onclick="buyToken('USDT')">Buy USDT 💵</button>
+  </div>
+</div>
+
+
+<!-- ═══════════════════ USDC SCREEN ═══════════════════ -->
+<div id="screen-usdc" class="screen">
+  <div class="detail-header dh-usdc">
+    <span class="dh-icon">🔵</span>
+    <div>
+      <div class="dh-title">Circle USDC</div>
+      <div class="dh-sub">Est. 2018 · Regulated USD stablecoin</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📖 History</h3>
+    <p>
+      USD Coin (USDC) was launched in September 2018 as a joint venture between <strong>Circle</strong> and <strong>Coinbase</strong> through the Centre Consortium. Unlike Tether, USDC was positioned from day one as a <em>compliant, regulated</em> stablecoin with monthly third-party attestations by Grant Thornton (later Deloitte).<br><br>
+      In 2023, Centre was dissolved and Circle took full ownership of USDC. That same year, USDC experienced a brief depeg to ~$0.87 after Silicon Valley Bank (one of Circle's reserve custodians) collapsed — it recovered within days once the FDIC guaranteed deposits.<br><br>
+      Circle filed for a US IPO in 2024 and has been working closely with regulators to position USDC as the compliant choice for institutions. USDC is natively issued on Base, Ethereum, Solana, Arbitrum, Avalanche, and many other chains.
+    </p>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-box">
+      <div class="stat-label">Total Supply</div>
+      <div class="stat-value val-usdc">~$44B</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">FDV</div>
+      <div class="stat-value val-usdc">~$44B</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>⚡ Main Use Cases</h3>
+    <ul>
+      <li><strong>Institutional payments</strong> — preferred stablecoin for banks, fintechs, and corporates due to regulatory clarity</li>
+      <li><strong>Cross-chain with CCTP</strong> — Circle's Cross-Chain Transfer Protocol (CCTP) enables native USDC burns and mints across chains (no bridging risk), currently live on Ethereum, Base, Arbitrum, Solana, and more</li>
+      <li><strong>Base ecosystem</strong> — USDC is the primary stablecoin on Base (Coinbase's L2), deeply integrated with its DeFi ecosystem</li>
+      <li><strong>Programmable payments</strong> — used by Coinbase Commerce and Web3 payment platforms for e-commerce</li>
+      <li><strong>DeFi & lending</strong> — major asset on Compound, Aave, and Morpho with deep liquidity</li>
+    </ul>
+  </div>
+
+  <div class="bottom-actions">
+    <button class="btn-back" onclick="show('main')">← Back</button>
+    <button class="btn-buy buy-usdc" onclick="buyToken('USDC')">Buy USDC 🔵</button>
+  </div>
+</div>
+
+
+<!-- ═══════════════════ DAI SCREEN ═══════════════════ -->
+<div id="screen-dai" class="screen">
+  <div class="detail-header dh-dai">
+    <span class="dh-icon">🌤️</span>
+    <div>
+      <div class="dh-title">Sky DAI</div>
+      <div class="dh-sub">Est. 2017 · Decentralised stablecoin (ex-MakerDAO)</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📖 History</h3>
+    <p>
+      DAI was created by <strong>MakerDAO</strong>, founded by Rune Christensen, and launched in December 2017. It was the first <em>decentralised</em> stablecoin — instead of being backed 1:1 by dollars in a bank, DAI is generated by locking collateral (originally only ETH) into smart contract Vaults on Ethereum.<br><br>
+      The system is governed by MKR token holders. In 2020, Multi-Collateral DAI (MCD) launched, allowing ETH, WBTC, and eventually even USDC as collateral. In 2023 MakerDAO launched the <strong>Endgame</strong> plan, rebranding to <strong>Sky</strong> in 2024 — introducing USDS (the successor to DAI) and SKY (the successor to MKR), while keeping DAI fully functional.<br><br>
+      DAI remains the world's largest decentralised stablecoin and a cornerstone of DeFi.
+    </p>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-box">
+      <div class="stat-label">Total Supply</div>
+      <div class="stat-value val-dai">~$5.4B</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">FDV</div>
+      <div class="stat-value val-dai">~$5.4B</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>⚡ Main Use Cases</h3>
+    <ul>
+      <li><strong>Decentralised borrowing</strong> — users lock ETH/WBTC/etc. in Sky Vaults to mint DAI without a centralised issuer</li>
+      <li><strong>DeFi building block</strong> — deeply integrated across Uniswap, Curve, Aave, and nearly every DeFi protocol as a trustless USD reference</li>
+      <li><strong>DAI Savings Rate (DSR)</strong> — holders can earn yield by depositing DAI into the Sky protocol's savings module</li>
+      <li><strong>Censorship resistance</strong> — unlike USDC/USDT, DAI has no blacklist function; ideal for protocols needing permissionless money</li>
+      <li><strong>Cross-chain DeFi</strong> — bridged to Arbitrum, Optimism, Base, and Polygon; used as stable collateral in L2 ecosystems</li>
+    </ul>
+  </div>
+
+  <div class="bottom-actions">
+    <button class="btn-back" onclick="show('main')">← Back</button>
+    <button class="btn-buy buy-dai" onclick="buyToken('DAI')">Buy DAI 🌤️</button>
+  </div>
+</div>
+
+
+<script>
+  function show(screen) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + screen).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  // BaseApp Trade deep links — token address on Base mainnet
+  const TRADE_LINKS = {
+    USDT: 'https://www.base.org/ecosystem?search=buy+usdt',
+    USDC: 'https://app.uniswap.org/#/swap?outputCurrency=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913&chain=base',
+    DAI:  'https://app.uniswap.org/#/swap?outputCurrency=0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb&chain=base',
+  };
+
+  function buyToken(symbol) {
+    window.open(TRADE_LINKS[symbol], '_blank');
+  }
+</script>
+</body>
+</html>
