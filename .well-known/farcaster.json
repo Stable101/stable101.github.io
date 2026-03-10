@@ -1,0 +1,30 @@
+{
+  "accountAssociation": {
+    "header": "",
+    "payload": "",
+    "signature": ""
+  },
+  "miniapp": {
+    "version": "1",
+    "name": "Stable101",
+    "homeUrl": "https://stable101.github.io/main/",
+    "iconUrl": "https://stable101.github.io/main/icon.png",
+    "splashImageUrl": "https://stable101.github.io/main/splash.png",
+    "splashBackgroundColor": "#f4f6fb",
+    "subtitle": "Learn stablecoins",
+    "description": "Explore the history, supply, and real-world usecases of USDT, USDC, and DAI stablecoins.",
+    "tagline": "Your stablecoin guide",
+    "primaryCategory": "education",
+    "tags": ["stablecoins", "education", "defi", "crypto", "finance"],
+    "heroImageUrl": "https://stable101.github.io/main/hero.png",
+    "screenshotUrls": [
+      "https://stable101.github.io/main/screenshot1.png",
+      "https://stable101.github.io/main/screenshot2.png",
+      "https://stable101.github.io/main/screenshot3.png"
+    ],
+    "ogTitle": "Stable101",
+    "ogDescription": "History and usecases of USDT, USDC, and DAI stablecoins.",
+    "ogImageUrl": "https://stable101.github.io/main/hero.png",
+    "noindex": false
+  }
+}
